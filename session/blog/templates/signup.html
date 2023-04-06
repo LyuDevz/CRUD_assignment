@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% load static %} {% block title %} LIKELION 11 Blog
+Project {% endblock title %} {% block extrahead %}
+<link rel="stylesheet" href="{% static 'blog/css/style.css' %}" />
+{% endblock extrahead %} {% block content %}
+<h1>Sign Up</h1>
+
+<form action="{% url 'signup' %}" method="POST">
+  {% csrf_token %} {{form.as_p}} <input type="submit" />
+</form>
+{%endblock content%}

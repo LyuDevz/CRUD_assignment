@@ -1,7 +1,45 @@
-<h1>편집 페이지입니다.</h1>
-<form method="POST" action="{% url 'update' edit_blog.id %}">
-  {%csrf_token%}
-  <input type="text" name="title" value="{{edit_blog.title}}" />
-  <textarea name="content" id="" cols="30">{{edit_blog.content}}</textarea>
-  <input type="submit" value="수정하기" />
+{% extends "base.html" %} {% load static %}{% block title %} LIKELION 11 Blog
+Project {% endblock title %} {% block extrahead %}
+<link rel="stylesheet" href="{% static 'blog/css/style.css' %}" />
+{% endblock extrahead %} {% block content %}
+<h1 id="new">
+  수정하기
+  <button id="create_btn">
+    <a href="{% url 'home' %}"
+      ><img src="{% static 'blog/img/home.png' %}" id="home_img"
+    /></a>
+  </button>
+  <button class="delete-btn">
+    <a href="{% url 'delete' edit_blog.id %}" class="delete">삭제하기</a>
+  </button>
+</h1>
+
+<form
+  method="POST"
+  action="{% url 'update' edit_blog.id %}"
+  enctype="multipart/form-data"
+  id="create-blog"
+>
+  {% csrf_token %}
+  <input
+    id="title"
+    type="text"
+    name="title"
+    value="{{edit_blog.title}}"
+    placeholder="제목"
+  />
+
+  <textarea
+    id="content"
+    name="content"
+    id=""
+    cols="30"
+    placeholder="내용을 입력해주세요"
+  >
+{{edit_blog.content}}</textarea
+  >
+  <input id="add_image" type="file" name="image" />
+  <input id="new_post_input" type="submit" value="수정하기" />
 </form>
+
+{% endblock content%}

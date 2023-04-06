@@ -1,8 +1,33 @@
-<h1>새 글 작성하기</h1>
-<form action="{%url 'create'%}" method="POST">
-  {% csrf_token %} 제목 : <input type="text" name="title" /> 본문 :
-  <textarea name="content" id="" cols="30" rows="10"></textarea>
-  <input type="submit" value="작성하기" />
+{% extends "base.html" %} {% load static %} {% block extrahead %}
+<link rel="stylesheet" href="{% static 'blog/css/style.css' %}" />
+{% endblock extrahead %} {% block content %}
+<h1 id="new">
+  작성하기
+  <button id="create_btn">
+    <a href="{% url 'home' %}"
+      ><img src="{% static 'blog/img/home.png' %}" id="home_img"
+    /></a>
+  </button>
+</h1>
+
+<form
+  action="{%url 'create'%}"
+  method="POST"
+  enctype="multipart/form-data"
+  id="create-blog"
+>
+  {% csrf_token %}
+  <input type="text" name="title" id="title" value="" placeholder="제목" />
+
+  <textarea
+    name="content"
+    id="content"
+    cols="30"
+    rows="10"
+    placeholder="내용을 입력해주세요"
+  ></textarea>
+  <input id="add_image" type="file" name="image" />
+  <input id="new_post_input" type="submit" value="작성하기" />
 </form>
 
-<a href="{% url 'home' %}">홈으로 가기</a>
+{% endblock content%}

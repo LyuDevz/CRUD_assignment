@@ -1,13 +1,38 @@
-<h1>LIKELION 11 Blog Project</h1>
-<a href="{%url 'new'%}">새 글 작성하기</a>
-<hr />
-<div>
-  {% for blog in blogs %}
-  <a href="{%url 'detail' blog.id%}">
-    <h2>{{blog.title}}</h2>
-    <p>{{blog.summary}}</p>
-    <p>{{blog.created_at}}</p>
-    <hr />
-  </a>
-  {% endfor %}
-</div>
+{% extends "base.html" %} {% load static %} {% block title %} LIKELION 11 Blog
+Project {% endblock title %} {% block extrahead %}
+<link rel="stylesheet" href="{% static 'blog/css/style.css' %}" />
+{% endblock extrahead %} {% block content %}
+<body>
+  <div class="container">
+    <h1>
+      Blog
+      <img src="{% static 'blog/img/lion.png' %}" alt="이모티콘" />
+    </h1>
+    <a href="{% url 'signup' %}" class="sign-up">회원가입</a>
+
+    <a href="{% url 'new' %}" class="new_blog"> 작성하기</a>
+  </div>
+  <hr />
+  <div>
+    {% for blog in page_obj %}
+    <button class="new_post">
+      <a href="{%url 'detail' blog.id %}">
+        <h2>{{blog.title}}</h2>
+        <p>{{blog.summary}}</p>
+        <p class="date">{{blog.created_at}}</p>
+      </a>
+    </button>
+    {% endfor %}
+  </div>
+  <hr />
+  <form action="{% url 'search' %}" method="POST" class="search-box">
+    {% csrf_token %}
+    <button type="submit">클릭!</button>
+    <input
+      type="search"
+      placeholder="찾으실 내용을 입력하십시오."
+      name="searched"
+    />
+  </form>
+</body>
+{% endblock content %}

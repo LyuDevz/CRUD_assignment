@@ -1,61 +1,95 @@
 from django.shortcuts import render,get_object_or_404,redirect
+from django.core.paginator import Paginator
 from .models import Blog
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import UserCreationForm
 from .forms import BlogForm
 
 def home(request):
     blogs = Blog.objects.all()
-    return render(request,'home.html',{'blogs':blogs})
+    paginator = Paginator(blogs, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request,'home.html',{'page_obj':page_obj})
 
-def detail(request,blog_id):
-    blog = get_object_or_404(Blog,pk=blog_id)
+def detail(request, blog_id):
+    blog = get_object_or_404(Blog, pk=blog_id)
     return render(request,'detail.html',{'blog':blog})
 
 def new(request):
     return render(request,'new.html')
-    
-# def create(request):
-#     new_blog = Blog()
-#     new_blog.title = request.POST['title']
-#     new_blog.content = request.POST['content']
-#     new_blog.save()
-#     #return render(request, 'detail.html', {'blog':new_blog})
-#     return redirect('detail',new_blog.id)
 
 def create(request):
-    form = BlogForm(request.POST)
-    # 착한 사용자
-    if form.is_valid():
-        new_blog = form.save(commit = False)
+    new_blog = Blog()
+    new_blog.title = request.POST.get('title')
+    new_blog.content = request.POST.get('content')
+    new_blog.image = request.FILES.get('image')
+    new_blog.save()
+    return redirect('detail', new_blog.id)
+    # return render(request, 'detail.html', {'blog':new_blog})
 
-        new_blog.save()
-        return redirect('detail', new_blog.id)
-    # 나쁜 사용자
-    return render(request, 'new.html')
+# def create(request):
+#     form = BlogForm(request.POST)
+#
+#     if form.is_valid():
+#         new_blog = form.save(commit=False)
+#         new_blog.save()
+#         return redirect('detail', new_blog.id)
+#
+#     return render(request, 'new.html')
 
 def edit(request, blog_id):
-    edit_blog = get_object_or_404(Blog, pk=blog_id)
-    return render(request, 'edit.html', {'edit_blog': edit_blog})
+    edit_blog = get_object_or_404(Blog, pk=blog_id) # print() 해보기
+    return render(request, 'edit.html', {'edit_blog':edit_blog})
 
-# def update(request, blog_id):
-#     old_blog = get_object_or_404(Blog, pk=blog_id)
-#     old_blog.title = request.POST['title']
-#     old_blog.content = request.POST['content']
-#     old_blog.save()
-#     return redirect('detail', old_blog.id)
 
 def update(request, blog_id):
     old_blog = get_object_or_404(Blog, pk=blog_id)
-    form = BlogForm(request.POST, instance=old_blog)
-    
-    #착한 사용자
+    old_blog.title = request.POST.get('title')
+    old_blog.content = request.POST.get('content')
+    old_blog.image = request.FILES.get('image')
+    old_blog.save()
+    return redirect('detail', old_blog.id)
+
+# def update(request, blog_id):
+#     old_blog = get_object_or_404(Blog, pk=blog_id)
+#     form = BlogForm(request.POST, instance=old_blog)
+
+    # 클라이언트가 유효한 값을 입력한 경우
     if form.is_valid():
-        new_blog = form.save(commit = False)
+        new_blog = form.save(commit=False)
         new_blog.save()
         return redirect('detail', old_blog.id)
-    # 나쁜 사용자
-    return render(request, 'new.html') 
+
+    return render(request, 'new.html', {'old_blog':old_blog})
+
 
 def delete(request, blog_id):
     delete_blog = get_object_or_404(Blog, pk=blog_id)
     delete_blog.delete()
     return redirect('home')
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    if request.method =='POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user= form.save()
+            auth_login(request, user)
+            return redirect('home')
+        else:
+            form = UserCreationForm()
+            context={
+                'form' : form,
+            } 
+        return render(request, 'signup.html', context)
+
+def search(request):
+    if request.method=="POST":
+        searched = request.POST['searched']
+        searched_blogs = Blog.objects.filter(title__contains=searched)
+        return render(request, 'searched.html', {'searched':searched, 'searched_blogs': searched_blogs})
+    else:
+        return render(request, 'searched.html', {})
+
